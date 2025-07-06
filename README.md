@@ -2,6 +2,30 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## 📋 Project Overview – Church Attendance App
+
+This is an offline-first mobile/web application designed to manage Sunday attendance lists for a local church. The goal is to provide a lightweight, intuitive and reliable way to track member attendance even without internet access.
+
+### 🎯 Key Features
+
+- Offline-First Functionality: The app works seamlessly without internet connectivity. All data is stored locally and persists between sessions.
+
+- Main "Lists" Screen: The home screen displays all created Sunday attendance lists. Each list represents a specific Sunday.
+
+- Add New Sundays: Easily add new attendance lists for each Sunday.
+
+- Attendance View: Tapping on a Sunday opens the full list of church members.
+
+- You can tap each member to mark them as "present".
+
+- The list allows for quick toggling and visual feedback.
+
+- Attendance Summary: At the top of each list, the app displays the total number of attendees for that Sunday.
+
+### 🧱 Use Case
+
+This tool is built specifically for church leaders and administrators who need a simple and efficient way to take attendance every week, even in rural or limited-connectivity environments.
+
 ## Get started
 
 1. Install dependencies
