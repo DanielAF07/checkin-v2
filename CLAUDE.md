@@ -11,6 +11,7 @@ This is a Church Attendance App - an offline-first mobile/web application design
 **Primary Goal**: Provide a lightweight, intuitive and reliable way to track member attendance even without internet access.
 
 **Key Features**:
+
 - **Offline-First**: Works seamlessly without internet connectivity with local data persistence
 - **Main Lists Screen**: Home screen displays all created Sunday attendance lists
 - **Add New Sundays**: Easy creation of new attendance lists for each Sunday
@@ -32,7 +33,6 @@ This is a Church Attendance App - an offline-first mobile/web application design
 - `pnpm run format` - Format code with Prettier
 - `pnpm run format:check` - Check code formatting
 - `pnpm run type-check` - Run TypeScript type checking
-- `pnpm run reset-project` - Move starter code to app-example/ and create blank app/ directory (already done)
 
 ## Architecture
 
@@ -69,9 +69,13 @@ Key dependencies include:
 ## Project Structure
 
 - `app/` - Main application code using Expo Router
-- `app-example/` - Contains the original starter template code
+- `scripts/` - Custom scripts for development tasks
+- `src/` - Shared code and utilities
+  - `components/` - Reusable UI components
+  - `hooks/` - Custom React hooks
+  - `screens/` - Screen components for different app views
+  - `utils/` - Utility functions and constants
 - `assets/` - Images, fonts, and other static assets
-- The project has been reset from the starter template, so most example components are in `app-example/`
 
 ## Development Notes
 
@@ -81,7 +85,6 @@ Key dependencies include:
 - VS Code is configured for format-on-save and auto-fixing ESLint issues
 - The app uses automatic UI style (supports both light and dark modes)
 - Package management: Uses pnpm (pnpm-lock.yaml exists)
-- Project has been reset from starter template - example code is in `app-example/`
 - Focus on offline-first architecture and local data persistence for church attendance tracking
 
 ## Database Schema (Instant DB)
@@ -91,6 +94,7 @@ The app uses Instant DB for real-time data synchronization with offline-first ca
 ### Database Entities
 
 #### `attendees` Entity
+
 - `name` - First name (string)
 - `first_lastname` - First last name (string)
 - `second_lastname` - Second last name (string)
@@ -100,6 +104,7 @@ The app uses Instant DB for real-time data synchronization with offline-first ca
 - `updated` - Last update timestamp (date)
 
 #### `events` Entity
+
 - `name` - Event name/title (string)
 - `date` - Event date (date)
 - `active` - Active status (boolean)
@@ -107,6 +112,7 @@ The app uses Instant DB for real-time data synchronization with offline-first ca
 - `updated` - Last update timestamp (date)
 
 #### `attendance` Entity
+
 - `created` - Creation timestamp (date)
 - `updated` - Last update timestamp (date)
 

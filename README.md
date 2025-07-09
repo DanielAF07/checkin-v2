@@ -41,17 +41,20 @@ This application provides church leaders and administrators with a lightweight, 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd checkin-v2
    ```
 
 2. **Install dependencies**
+
    ```bash
    pnpm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    # Create .env file with your Instant DB app ID
    EXPO_PUBLIC_INSTANT_APP_ID=your_instant_db_app_id
@@ -105,6 +108,7 @@ This application provides church leaders and administrators with a lightweight, 
 The app uses Instant DB with the following entities:
 
 ### Attendees
+
 ```typescript
 {
   name: string;              // First name
@@ -118,22 +122,24 @@ The app uses Instant DB with the following entities:
 ```
 
 ### Events
+
 ```typescript
 {
-  name: string;    // Event name
-  date: date;      // Event date and time
+  name: string; // Event name
+  date: date; // Event date and time
   active: boolean; // Active status
-  created: date;   // Creation timestamp
-  updated: date;   // Last update timestamp
+  created: date; // Creation timestamp
+  updated: date; // Last update timestamp
 }
 ```
 
 ### Attendance
+
 ```typescript
 {
   // Links to attendee and event via relationships
-  created: date;   // Check-in timestamp
-  updated: date;   // Last update timestamp
+  created: date; // Check-in timestamp
+  updated: date; // Last update timestamp
 }
 ```
 
@@ -144,13 +150,21 @@ The app uses Instant DB with the following entities:
 1. Create an account at [instantdb.com](https://instantdb.com)
 2. Create a new app and get your App ID
 3. Add the App ID to your environment variables
-4. The schema is automatically applied from `instant.schema.ts`
+4. Install the Instant DB CLI:
+   ```bash
+   pnpm add -D instantdb-cli
+   ```
+5. Run the Instant DB CLI to set up your database:
+   ```bash
+   npx instant-cli@latest push schema
+   ```
 
 ### Tamagui Configuration
 
 The app uses Tamagui v4 with custom theming:
+
 - Configured in `app/_layout.tsx`
-- Supports automatic dark/light mode
+- Supports automatic dark/light mode (but dark mode is default)
 - Custom path mapping with `@/*` pointing to root
 
 ## 📂 Project Structure
@@ -191,6 +205,7 @@ eas build --platform android
 ### Environment Variables
 
 Required environment variables:
+
 - `EXPO_PUBLIC_INSTANT_APP_ID` - Your Instant DB app ID
 
 ## 🤝 Contributing
