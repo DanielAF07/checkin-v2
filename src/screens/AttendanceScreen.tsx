@@ -1,9 +1,9 @@
 import { Plus } from '@tamagui/lucide-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { Keyboard, SectionList, TouchableWithoutFeedback } from 'react-native';
 import { useAnimatedStyle } from 'react-native-reanimated';
-import { Button, YStack } from 'tamagui';
+import { Button, Text, YStack } from 'tamagui';
 import type { FilterType } from '../components';
 import {
   AttendanceCounter,
@@ -37,7 +37,7 @@ export function AttendanceScreen() {
   const [searchText, setSearchText] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
-  const flatListRef = useRef<FlatList>(null);
+  const sectionListRef = useRef<SectionList>(null);
 
   const eventId = id as string;
 
@@ -100,6 +100,29 @@ export function AttendanceScreen() {
     return filtered;
   }, [allAttendeesWithPresence, searchText, selectedFilter]);
 
+  // Agrupar asistentes por la primera letra del apellido para SectionList
+  const sectionData = useMemo(() => {
+    const grouped = filteredAttendees.reduce(
+      (acc, attendee) => {
+        const firstLetter = attendee.first_lastname.charAt(0).toUpperCase();
+        if (!acc[firstLetter]) {
+          acc[firstLetter] = [];
+        }
+        acc[firstLetter].push(attendee);
+        return acc;
+      },
+      {} as Record<string, typeof filteredAttendees>
+    );
+
+    // Convertir a formato SectionList y ordenar por letra
+    return Object.keys(grouped)
+      .sort()
+      .map(letter => ({
+        title: letter,
+        data: grouped[letter],
+      }));
+  }, [filteredAttendees]);
+
   const attendanceCount = attendanceRecords.length;
   const totalAttendees = allAttendees.length;
   const noPiimeCount = allAttendeesWithPresence.filter(
@@ -135,10 +158,38 @@ export function AttendanceScreen() {
 
   // Scroll al inicio cuando cambie el texto de búsqueda
   useEffect(() => {
-    if (searchText.trim() && filteredAttendees.length > 0) {
-      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+    if (searchText.trim() && sectionData.length > 0) {
+      sectionListRef.current?.scrollToLocation({
+        sectionIndex: 0,
+        itemIndex: 0,
+        animated: true,
+      });
     }
-  }, [searchText, filteredAttendees.length]);
+  }, [searchText, sectionData.length]);
+
+  const renderSectionHeader = ({
+    section,
+  }: {
+    section: { title: string; data: any[] };
+  }) => (
+    <YStack
+      bg="$background"
+      px="$3"
+      py="$2"
+      borderBottomWidth={1}
+      borderBottomColor="$borderColor"
+      mb="$1"
+    >
+      <Text
+        fontSize="$8"
+        fontWeight="bold"
+        color="$color"
+        textTransform="uppercase"
+      >
+        {section.title}
+      </Text>
+    </YStack>
+  );
 
   const renderAttendeeItem = ({ item }: { item: any }) => (
     <AttendeeCard
@@ -174,11 +225,13 @@ export function AttendanceScreen() {
               placeholder="Buscar persona..."
             />
 
-            <FlatList
-              ref={flatListRef}
-              data={filteredAttendees}
+            <SectionList
+              ref={sectionListRef}
+              sections={sectionData}
               renderItem={renderAttendeeItem}
-              keyExtractor={item => item.id.toString()}
+              renderSectionHeader={renderSectionHeader}
+              keyExtractor={item => item.id}
+              stickySectionHeadersEnabled={true}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 80 }}
               // Optimizaciones para dispositivos lentos
@@ -187,11 +240,6 @@ export function AttendanceScreen() {
               updateCellsBatchingPeriod={50}
               initialNumToRender={15}
               windowSize={10}
-              getItemLayout={(_, index) => ({
-                length: 88, // altura estimada de cada AttendeeCard
-                offset: 88 * index,
-                index,
-              })}
             />
 
             {/* Floating Action Button */}
