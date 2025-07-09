@@ -7,4 +7,6 @@ export { SearchBar } from './SearchBar';
 export { CreateAttendeeModal } from './CreateAttendeeModal';
 export { FilterToggle } from './FilterToggle';
 export type { FilterType } from './FilterToggle';
+export { EventsFilter } from './EventsFilter';
+export type { EventFilterType } from './EventsFilter';
 export { BottomSheetInput } from './ui/BottomSheetInput';
