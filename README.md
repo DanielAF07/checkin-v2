@@ -207,6 +207,7 @@ eas build --platform android
 Required environment variables:
 
 - `EXPO_PUBLIC_INSTANT_APP_ID` - Your Instant DB app ID
+- `INSTANT_ADMIN_TOKEN` - Your Instant DB admin token to populate the database
 
 ## 🤝 Contributing
 
