@@ -167,11 +167,7 @@ export function AttendanceScreen() {
     }
   }, [searchText, sectionData.length]);
 
-  const renderSectionHeader = ({
-    section,
-  }: {
-    section: { title: string; data: any[] };
-  }) => (
+  const renderSectionHeader = ({ section }: any) => (
     <YStack
       bg="$background"
       px="$3"

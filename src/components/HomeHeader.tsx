@@ -29,12 +29,12 @@ export function HomeHeader({ onCreateNew }: HomeHeaderProps) {
         size="$3"
         icon={Plus}
         onPress={onCreateNew}
-        backgroundColor="transparent"
+        bg="transparent"
         borderColor="$borderColor"
         borderWidth={1}
         color="$color"
         pressStyle={{
-          backgroundColor: '$color2',
+          bg: '$color2',
           scale: 0.95,
         }}
         style={{
