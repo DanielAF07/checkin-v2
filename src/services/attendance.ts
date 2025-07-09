@@ -1,5 +1,5 @@
 import { instantDb } from '@/src/config/instant/instantDb';
-import { id, type InstaQLResponse } from '@instantdb/react-native';
+import { id } from '@instantdb/react-native';
 import type { AppSchema } from '../../instant.schema';
 
 export type Attendance = AppSchema['entities']['attendance'];
@@ -9,34 +9,25 @@ export type AttendanceInput = {
 };
 
 // Tipos para respuestas de queries
-export type AttendanceQuery = InstaQLResponse<
-  AppSchema,
-  {
-    attendance: {
-      event: {};
+export type AttendanceQuery = ReturnType<typeof instantDb.useQuery<{
+  attendance: {
+    event: {};
+    attendee: {};
+  };
+}>>;
+
+export type AttendanceStatsQuery = ReturnType<typeof instantDb.useQuery<{
+  events: {
+    attendances: {
       attendee: {};
     };
-  }
->;
+  };
+  attendees: {};
+}>>;
 
-export type AttendanceStatsQuery = InstaQLResponse<
-  AppSchema,
-  {
-    events: {
-      attendances: {
-        attendee: {};
-      };
-    };
-    attendees: {};
-  }
->;
-
-export type AttendanceCountQuery = InstaQLResponse<
-  AppSchema,
-  {
-    attendance: {};
-  }
->;
+export type AttendanceCountQuery = ReturnType<typeof instantDb.useQuery<{
+  attendance: {};
+}>>;
 
 export const attendanceService = {
   // Get all attendance records

@@ -1,5 +1,5 @@
 import { instantDb } from '@/src/config/instant/instantDb';
-import { id, type InstaQLResponse } from '@instantdb/react-native';
+import { id } from '@instantdb/react-native';
 import type { AppSchema } from '../../instant.schema';
 
 export type Event = AppSchema['entities']['events'];
@@ -9,22 +9,22 @@ export type EventInput = {
   active?: boolean;
 };
 
-// Tipos para respuestas de queries
-export type EventsQuery = InstaQLResponse<AppSchema, {
+// Tipos para respuestas de queries (usando el hook directamente)
+export type EventsQuery = ReturnType<typeof instantDb.useQuery<{
   events: {};
-}>;
+}>>;
 
-export type EventWithAttendancesQuery = InstaQLResponse<AppSchema, {
+export type EventWithAttendancesQuery = ReturnType<typeof instantDb.useQuery<{
   events: {
     attendances: {
       attendee: {};
     };
   };
-}>;
+}>>;
 
-export type SingleEventQuery = InstaQLResponse<AppSchema, {
+export type SingleEventQuery = ReturnType<typeof instantDb.useQuery<{
   events: {};
-}>;
+}>>;
 
 export const eventsService = {
   // Get all events
