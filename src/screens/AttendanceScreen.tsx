@@ -3,12 +3,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useAnimatedStyle } from 'react-native-reanimated';
-import { Button, View, YStack } from 'tamagui';
+import { Button, YStack } from 'tamagui';
 import type { FilterType } from '../components';
 import {
   AttendanceCounter,
   AttendanceHeader,
   AttendeeCard,
+  CreateAttendeeModal,
   FilterToggle,
   SearchBar,
 } from '../components';
@@ -150,7 +151,7 @@ export function AttendanceScreen() {
     <YStack flex={1}>
       <YStack flex={1}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <YStack flex={1} p="$4">
+          <YStack flex={1} pt="$4" px="$4">
             <AttendanceHeader
               title={event?.name ? event.name : 'Cargando...'}
               onBack={() => router.back()}
@@ -196,31 +197,28 @@ export function AttendanceScreen() {
             {/* Floating Action Button */}
             <Button
               position="absolute"
-              b={45}
-              r={20}
-              size="$5"
+              b={40}
+              r={30}
+              size="$6"
               circular
               bg="$blue9"
               color="white"
               icon={Plus}
+              scaleIcon={1.5}
               onPress={() => setShowCreateModal(true)}
               shadowColor="$shadowColor"
               shadowOffset={{ width: 0, height: 2 }}
               shadowOpacity={0.25}
               shadowRadius={3.84}
             />
-
-            {/* Create Attendee Modal */}
           </YStack>
         </TouchableWithoutFeedback>
-        {/* <CreateAttendeeModal
+        <CreateAttendeeModal
           open={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSubmit={handleCreateAttendee}
-          isKeyboardVisible={!keyboardState}
-        /> */}
+        />
       </YStack>
-      <View style={{ height: 50 }} />
     </YStack>
   );
 }
