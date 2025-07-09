@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "checkin-v2",
+    "name": "MDV Attendance",
     "slug": "checkin-v2",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,15 +10,15 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.catfish2422.checkinv2"
+      "bundleIdentifier": "com.danchondo.checkinv2"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/splash-icon.png",
+        "backgroundColor": "#1E1E1E"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.catfish2422.checkinv2"
+      "package": "com.danchondo.checkinv2"
     },
     "web": {
       "bundler": "metro",
@@ -33,7 +33,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000"
         }
       ],
       ["expo-sqlite"]
