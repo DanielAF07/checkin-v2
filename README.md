@@ -1,74 +1,227 @@
-# Welcome to your Expo app 👋
+# Church Attendance App 📱⛪
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An offline-first mobile/web application designed to manage Sunday attendance lists for local churches. Built with React Native, Expo, and Instant DB for real-time synchronization.
 
-## 📋 Project Overview – Church Attendance App
+## 🎯 Project Overview
 
-This is an offline-first mobile/web application designed to manage Sunday attendance lists for a local church. The goal is to provide a lightweight, intuitive and reliable way to track member attendance even without internet access.
+This application provides church leaders and administrators with a lightweight, intuitive, and reliable way to track member attendance even without internet connectivity. Perfect for rural or limited-connectivity environments.
 
-### 🎯 Key Features
+### ✨ Key Features
 
-- Offline-First Functionality: The app works seamlessly without internet connectivity. All data is stored locally and persists between sessions.
+- **🔄 Offline-First Architecture**: Works seamlessly without internet connectivity with local data persistence
+- **📋 Sunday Lists Management**: Home screen displays all created Sunday attendance lists
+- **➕ Easy Event Creation**: Quick creation of new attendance lists for each Sunday
+- **👥 Member Management**: Add, edit, and manage church members with filtering options
+- **✅ Quick Check-in**: Tap members to mark them as present with visual feedback
+- **🔍 Smart Filtering**: Filter attendees by presence status or missing ID numbers
+- **📊 Real-time Counters**: Display total attendees and present members for each event
+- **🔄 Real-time Sync**: Automatic synchronization when internet is available
+- **🌙 Dark/Light Mode**: Automatic theme support
 
-- Main "Lists" Screen: The home screen displays all created Sunday attendance lists. Each list represents a specific Sunday.
+## 🏗️ Tech Stack
 
-- Add New Sundays: Easily add new attendance lists for each Sunday.
+- **Framework**: React Native with Expo (v53+)
+- **Routing**: Expo Router (file-based routing)
+- **UI Library**: Tamagui for styling and components
+- **Database**: Instant DB for real-time data with offline support
+- **State Management**: Built-in Instant DB state + Zustand
+- **Animations**: React Native Reanimated
+- **Platform Support**: iOS, Android, and Web
 
-- Attendance View: Tapping on a Sunday opens the full list of church members.
+## 🚀 Getting Started
 
-- You can tap each member to mark them as "present".
+### Prerequisites
 
-- The list allows for quick toggling and visual feedback.
+- Node.js (v18 or later)
+- pnpm (recommended) or npm
+- Expo CLI
+- iOS Simulator (for iOS development)
+- Android Studio (for Android development)
 
-- Attendance Summary: At the top of each list, the app displays the total number of attendees for that Sunday.
+### Installation
 
-### 🧱 Use Case
-
-This tool is built specifically for church leaders and administrators who need a simple and efficient way to take attendance every week, even in rural or limited-connectivity environments.
-
-## Get started
-
-1. Install dependencies
-
+1. **Clone the repository**
    ```bash
-   npm install
+   git clone <repository-url>
+   cd checkin-v2
    ```
 
-2. Start the app
-
+2. **Install dependencies**
    ```bash
+   pnpm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   # Create .env file with your Instant DB app ID
+   EXPO_PUBLIC_INSTANT_APP_ID=your_instant_db_app_id
+   ```
+
+4. **Start the development server**
+   ```bash
+   pnpm start
+   # or
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+### Development Commands
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- `pnpm start` - Start the Expo development server
+- `pnpm run android` - Start on Android emulator
+- `pnpm run ios` - Start on iOS simulator
+- `pnpm run web` - Start web version
+- `pnpm run lint` - Run ESLint
+- `pnpm run lint:fix` - Run ESLint with auto-fix
+- `pnpm run format` - Format code with Prettier
+- `pnpm run type-check` - Run TypeScript type checking
+- `pnpm run create-attendees` - Bulk import attendees from JSON
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 📱 App Structure
 
-## Get a fresh project
+### Main Screens
 
-When you're ready, run:
+1. **Home Screen** (`app/index.tsx`)
+   - Displays list of all Sunday events
+   - Shows attendance count for each event
+   - Quick access to create new events
 
-```bash
-npm run reset-project
+2. **Attendance Screen** (`app/attendance/[id].tsx`)
+   - Shows all members for a specific event
+   - Toggle attendance status
+   - Filter by presence or missing ID
+   - Add new members on-the-fly
+
+### Key Components
+
+- **EventCard**: Display individual Sunday events
+- **AttendeeCard**: Individual member card with attendance toggle
+- **FilterToggle**: Filter members by status
+- **CreateEventBottomSheet**: Modal for creating new events
+- **CreateAttendeeModal**: Modal for adding new members
+- **BottomSheetInput**: Custom input with keyboard avoidance
+
+## 🗄️ Database Schema
+
+The app uses Instant DB with the following entities:
+
+### Attendees
+```typescript
+{
+  name: string;              // First name
+  first_lastname: string;    // Paternal surname
+  second_lastname: string;   // Maternal surname
+  piime_id?: string;        // External ID (optional)
+  active: boolean;          // Active status
+  created: date;            // Creation timestamp
+  updated: date;            // Last update timestamp
+}
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Events
+```typescript
+{
+  name: string;    // Event name
+  date: date;      // Event date and time
+  active: boolean; // Active status
+  created: date;   // Creation timestamp
+  updated: date;   // Last update timestamp
+}
+```
 
-## Learn more
+### Attendance
+```typescript
+{
+  // Links to attendee and event via relationships
+  created: date;   // Check-in timestamp
+  updated: date;   // Last update timestamp
+}
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🔧 Configuration
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Instant DB Setup
 
-## Join the community
+1. Create an account at [instantdb.com](https://instantdb.com)
+2. Create a new app and get your App ID
+3. Add the App ID to your environment variables
+4. The schema is automatically applied from `instant.schema.ts`
 
-Join our community of developers creating universal apps.
+### Tamagui Configuration
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The app uses Tamagui v4 with custom theming:
+- Configured in `app/_layout.tsx`
+- Supports automatic dark/light mode
+- Custom path mapping with `@/*` pointing to root
+
+## 📂 Project Structure
+
+```
+checkin-v2/
+├── app/                    # Main application (Expo Router)
+│   ├── _layout.tsx        # Root layout with providers
+│   ├── index.tsx          # Home screen
+│   └── attendance/        # Attendance screens
+├── src/
+│   ├── components/        # Reusable UI components
+│   ├── hooks/            # Custom React hooks
+│   ├── screens/          # Screen components
+│   ├── services/         # Database services
+│   └── utils/            # Utility functions
+├── assets/               # Static assets
+├── scripts/              # Utility scripts
+├── instant.schema.ts     # Database schema
+└── instant.perms.ts      # Database permissions
+```
+
+## 🚀 Deployment
+
+### Building for Production
+
+```bash
+# Build for web
+pnpm run web
+
+# Build for iOS
+eas build --platform ios
+
+# Build for Android
+eas build --platform android
+```
+
+### Environment Variables
+
+Required environment variables:
+- `EXPO_PUBLIC_INSTANT_APP_ID` - Your Instant DB app ID
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+
+- ESLint configuration with React Native and TypeScript rules
+- Prettier for consistent formatting
+- VS Code settings for format-on-save
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Expo](https://expo.dev)
+- UI powered by [Tamagui](https://tamagui.dev)
+- Real-time database by [Instant DB](https://instantdb.com)
+- Icons by [Lucide React](https://lucide.dev)
+
+## 📞 Support
+
+For support, please open an issue in the GitHub repository or contact the development team.
+
+---
+
+**Built with ❤️ for church communities**
