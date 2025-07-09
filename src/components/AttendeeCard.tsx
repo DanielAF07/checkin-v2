@@ -2,7 +2,17 @@ import { Check } from '@tamagui/lucide-icons';
 import { memo } from 'react';
 import { View } from 'react-native';
 import { Card, Text } from 'tamagui';
-import { type AttendeeWithPresence } from '../../store/attendanceStore';
+
+interface AttendeeWithPresence {
+  id: string;
+  name: string;
+  first_lastname: string;
+  second_lastname: string;
+  piime_id: string | null;
+  created: string;
+  updated: string;
+  isPresent: boolean;
+}
 
 interface AttendeeCardProps {
   attendee: AttendeeWithPresence;
