@@ -1,6 +1,6 @@
 import { eventsService } from '@/src/services';
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Keyboard } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { Button, H4, Label, Text, XStack, YStack } from 'tamagui';
 import { BottomSheet } from './ui/BottomSheet';
@@ -32,7 +32,7 @@ const getNextSunday11AM = (): Date => {
 interface CreateEventBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  onEventCreated?: () => void;
+  onEventCreated?: (eventId: string) => void;
 }
 
 export function CreateEventBottomSheet({
@@ -63,13 +63,19 @@ export function CreateEventBottomSheet({
 
     setIsLoading(true);
     try {
-      await eventsService.create({
+      // Cerrar el teclado primero
+      Keyboard.dismiss();
+      
+      const newEventId = await eventsService.create({
         name: name.trim(),
         date: date.getTime(),
       });
 
+      // Cerrar el bottom sheet
       onClose();
-      onEventCreated?.();
+      
+      // Navegar al nuevo evento
+      onEventCreated?.(newEventId);
     } catch (error) {
       console.error('Error creating event:', error);
       Alert.alert('Error', 'No se pudo crear el evento. Intenta nuevamente.');

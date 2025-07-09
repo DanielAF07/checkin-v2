@@ -29,9 +29,9 @@ export function HomeScreen() {
     setIsCreateEventOpen(true);
   };
 
-  const handleEventCreated = () => {
-    // Recargar datos después de crear evento
-    // Los datos se actualizarán automáticamente por Instant DB
+  const handleEventCreated = (eventId: string) => {
+    // Navegar al evento recién creado
+    router.push(`/attendance/${eventId}`);
   };
 
   // Filtrar y ordenar eventos
