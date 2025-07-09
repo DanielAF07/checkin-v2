@@ -1,5 +1,5 @@
+import { Check } from '@tamagui/lucide-icons';
 import { memo } from 'react';
-import { Check, X } from '@tamagui/lucide-icons';
 import { View } from 'react-native';
 import { Card, Text } from 'tamagui';
 import { type AttendeeWithPresence } from '../../store/attendanceStore';
@@ -9,13 +9,16 @@ interface AttendeeCardProps {
   onToggle: () => void;
 }
 
-export const AttendeeCard = memo(function AttendeeCard({ attendee, onToggle }: AttendeeCardProps) {
+export const AttendeeCard = memo(function AttendeeCard({
+  attendee,
+  onToggle,
+}: AttendeeCardProps) {
   return (
     <Card
       elevate
-      size="$4"
+      size="$3"
       bordered
-      marginBottom="$3"
+      marginBottom="$2.5"
       backgroundColor={attendee.isPresent ? '$green2' : '$background'}
       borderColor={attendee.isPresent ? '$green8' : '$borderColor'}
       pressStyle={{ scale: 0.98 }}
@@ -29,7 +32,7 @@ export const AttendeeCard = memo(function AttendeeCard({ attendee, onToggle }: A
             alignItems: 'center',
           }}
         >
-          <Text color="$color" fontSize="$7">
+          <Text color="$color" fontSize="$7" textTransform="capitalize">
             {attendee.name}{' '}
             <Text fontWeight="bold" fontSize="$8">
               {attendee.first_lastname}
@@ -46,11 +49,12 @@ export const AttendeeCard = memo(function AttendeeCard({ attendee, onToggle }: A
               alignItems: 'center',
             }}
           >
-            {attendee.isPresent ? (
-              <Check size={20} color="white" />
-            ) : (
-              <X size={20} color="white" />
-            )}
+            {
+              attendee.isPresent ? (
+                <Check size={20} color="white" strokeWidth={4} />
+              ) : null
+              // <X size={20} color="white" />
+            }
           </View>
         </View>
       </Card.Header>

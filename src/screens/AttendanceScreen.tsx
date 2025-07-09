@@ -1,55 +1,135 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { Plus } from '@tamagui/lucide-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { FlatList, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { YStack } from 'tamagui';
-import {
-  useAttendanceStore,
-  type AttendeeWithPresence,
-} from '../../store/attendanceStore';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { useAnimatedStyle } from 'react-native-reanimated';
+import { Button, View, YStack } from 'tamagui';
+import type { FilterType } from '../components';
 import {
   AttendanceCounter,
   AttendanceHeader,
   AttendeeCard,
+  FilterToggle,
   SearchBar,
 } from '../components';
-import { formatDate, normalizeText } from '../utils';
+import { useGradualAnimation } from '../hooks/useGradualAnimation';
+import { useKeyboardState } from '../hooks/useKeyboardState';
+import {
+  attendanceService,
+  attendeesService,
+  eventsService,
+} from '../services';
+import { normalizeText } from '../utils';
 
 export function AttendanceScreen() {
+  const { height } = useGradualAnimation();
+  const { isKeyboardVisible: keyboardState } = useKeyboardState();
+
+  const keyboardPadding = useAnimatedStyle(() => {
+    return {
+      height: height.value,
+    };
+  }, []);
+
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [searchText, setSearchText] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
   const flatListRef = useRef<FlatList>(null);
 
-  const eventId = parseInt(id as string);
-  const {
-    getEventById,
-    getAttendeesWithPresence,
-    toggleAttendance,
-    getAttendanceCount,
-    getAttendeeFullName,
-  } = useAttendanceStore();
+  const eventId = id as string;
 
-  const event = getEventById(eventId);
-  const allAttendeesWithPresence = getAttendeesWithPresence(eventId);
-  
-  // Filtrar asistentes basado en la búsqueda
+  // Obtener datos desde Instant DB
+  const { data: eventData } = eventsService.getById(eventId);
+  const { data: attendeesData } = attendeesService.getAll();
+  const { data: attendanceData } = attendanceService.getByEventId(eventId);
+
+  const event = eventData?.events?.[0];
+  const allAttendees = attendeesData?.attendees || [];
+  const attendanceRecords = attendanceData?.attendance || [];
+
+  // Crear lista de asistentes con estado de presencia
+  const allAttendeesWithPresence = useMemo(() => {
+    return allAttendees
+      .map(attendee => {
+        const attendanceRecord = attendanceRecords.find(
+          record => record.attendee?.id === attendee.id
+        );
+        return {
+          ...attendee,
+          isPresent: !!attendanceRecord,
+          attendanceId: attendanceRecord?.id,
+        };
+      })
+      .sort((a, b) => {
+        // Sort by first_lastname, then second_lastname, then name
+        if (a.first_lastname !== b.first_lastname) {
+          return a.first_lastname.localeCompare(b.first_lastname);
+        }
+        if (a.second_lastname !== b.second_lastname) {
+          return a.second_lastname.localeCompare(b.second_lastname);
+        }
+        return a.name.localeCompare(b.name);
+      });
+  }, [allAttendees, attendanceRecords]);
+
+  // Filtrar asistentes basado en la búsqueda y filtros
   const filteredAttendees = useMemo(() => {
-    if (!searchText.trim()) {
-      return allAttendeesWithPresence;
+    let filtered = allAttendeesWithPresence;
+
+    // Aplicar filtro por tipo
+    if (selectedFilter === 'present') {
+      filtered = filtered.filter(attendee => attendee.isPresent);
+    } else if (selectedFilter === 'no-piime') {
+      filtered = filtered.filter(attendee => !attendee.piime_id);
     }
-    
-    const searchNormalized = normalizeText(searchText);
-    return allAttendeesWithPresence.filter(attendee => {
-      const fullName = normalizeText(getAttendeeFullName(attendee));
-      return fullName.includes(searchNormalized);
-    });
-  }, [allAttendeesWithPresence, searchText, getAttendeeFullName]);
 
-  const attendanceCount = getAttendanceCount(eventId);
-  const totalAttendees = allAttendeesWithPresence.length;
+    // Aplicar filtro de búsqueda
+    if (searchText.trim()) {
+      const searchNormalized = normalizeText(searchText);
+      filtered = filtered.filter(attendee => {
+        const fullName = normalizeText(
+          `${attendee.name} ${attendee.first_lastname} ${attendee.second_lastname}`
+        );
+        return fullName.includes(searchNormalized);
+      });
+    }
 
-  const handleToggleAttendance = (attendeeId: number) => {
-    toggleAttendance(eventId, attendeeId);
+    return filtered;
+  }, [allAttendeesWithPresence, searchText, selectedFilter]);
+
+  const attendanceCount = attendanceRecords.length;
+  const totalAttendees = allAttendees.length;
+  const noPiimeCount = allAttendeesWithPresence.filter(
+    attendee => !attendee.piime_id
+  ).length;
+
+  const handleToggleAttendance = async (attendee: any) => {
+    try {
+      if (attendee.isPresent && attendee.attendanceId) {
+        // Mark as absent
+        await attendanceService.markAbsent(attendee.attendanceId);
+      } else {
+        // Mark as present
+        await attendanceService.markPresent(eventId, attendee.id);
+      }
+    } catch (error) {
+      console.error('Error toggling attendance:', error);
+    }
+  };
+
+  const handleCreateAttendee = async (attendeeData: {
+    name: string;
+    first_lastname: string;
+    second_lastname: string;
+  }) => {
+    try {
+      await attendeesService.create(attendeeData);
+    } catch (error) {
+      console.error('Error creating attendee:', error);
+      throw error;
+    }
   };
 
   // Scroll al inicio cuando cambie el texto de búsqueda
@@ -59,52 +139,88 @@ export function AttendanceScreen() {
     }
   }, [searchText, filteredAttendees.length]);
 
-  const renderAttendeeItem = ({ item }: { item: AttendeeWithPresence }) => (
+  const renderAttendeeItem = ({ item }: { item: any }) => (
     <AttendeeCard
       attendee={item}
-      onToggle={() => handleToggleAttendance(item.id)}
+      onToggle={() => handleToggleAttendance(item)}
     />
   );
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <YStack flex={1} background="$background" p="$4">
-        <AttendanceHeader
-          title={event ? formatDate(event.date) : 'Cargando...'}
-          onBack={() => router.back()}
-        />
+    <YStack flex={1}>
+      <YStack flex={1}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <YStack flex={1} p="$4">
+            <AttendanceHeader
+              title={event?.name ? event.name : 'Cargando...'}
+              onBack={() => router.back()}
+            />
 
-        <AttendanceCounter
-          attendanceCount={attendanceCount}
-          totalAttendees={totalAttendees}
-        />
+            <AttendanceCounter
+              attendanceCount={attendanceCount}
+              totalAttendees={totalAttendees}
+            />
 
-        <SearchBar
-          value={searchText}
-          onChangeText={setSearchText}
-          placeholder="Buscar persona..."
-        />
+            <FilterToggle
+              selectedFilter={selectedFilter}
+              onFilterChange={setSelectedFilter}
+              noPiimeCount={noPiimeCount}
+            />
 
-        <FlatList
-          ref={flatListRef}
-          data={filteredAttendees}
-          renderItem={renderAttendeeItem}
-          keyExtractor={item => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          // Optimizaciones para dispositivos lentos
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
-          initialNumToRender={15}
-          windowSize={10}
-          getItemLayout={(_, index) => ({
-            length: 88, // altura estimada de cada AttendeeCard
-            offset: 88 * index,
-            index,
-          })}
-        />
+            <SearchBar
+              value={searchText}
+              onChangeText={setSearchText}
+              placeholder="Buscar persona..."
+            />
+
+            <FlatList
+              ref={flatListRef}
+              data={filteredAttendees}
+              renderItem={renderAttendeeItem}
+              keyExtractor={item => item.id.toString()}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 80 }}
+              // Optimizaciones para dispositivos lentos
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={10}
+              updateCellsBatchingPeriod={50}
+              initialNumToRender={15}
+              windowSize={10}
+              getItemLayout={(_, index) => ({
+                length: 88, // altura estimada de cada AttendeeCard
+                offset: 88 * index,
+                index,
+              })}
+            />
+
+            {/* Floating Action Button */}
+            <Button
+              position="absolute"
+              b={45}
+              r={20}
+              size="$5"
+              circular
+              bg="$blue9"
+              color="white"
+              icon={Plus}
+              onPress={() => setShowCreateModal(true)}
+              shadowColor="$shadowColor"
+              shadowOffset={{ width: 0, height: 2 }}
+              shadowOpacity={0.25}
+              shadowRadius={3.84}
+            />
+
+            {/* Create Attendee Modal */}
+          </YStack>
+        </TouchableWithoutFeedback>
+        {/* <CreateAttendeeModal
+          open={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreateAttendee}
+          isKeyboardVisible={!keyboardState}
+        /> */}
       </YStack>
-    </TouchableWithoutFeedback>
+      <View style={{ height: 50 }} />
+    </YStack>
   );
 }

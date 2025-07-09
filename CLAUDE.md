@@ -64,6 +64,7 @@ Key dependencies include:
 - React Native Reanimated for animations
 - React Native Gesture Handler for touch interactions
 - Expo modules for platform-specific APIs
+- Instant DB (@instantdb/react-native) for real-time database with offline support
 
 ## Project Structure
 
@@ -83,47 +84,54 @@ Key dependencies include:
 - Project has been reset from starter template - example code is in `app-example/`
 - Focus on offline-first architecture and local data persistence for church attendance tracking
 
-## Database Schema (SQLite)
+## Database Schema (Instant DB)
 
-The app will use SQLite for local data persistence. The database structure includes:
+The app uses Instant DB for real-time data synchronization with offline-first capabilities. The database structure is defined in `instant.schema.ts`.
 
-### `attendees` Table
-- `id` - Primary key (INTEGER)
-- `name` - First name (TEXT)
-- `first_lastname` - First last name (TEXT)
-- `second_lastname` - Second last name (TEXT)
-- `piime_id` - External ID reference (TEXT, nullable)
-- `created` - Creation timestamp (TEXT/ISO string)
-- `updated` - Last update timestamp (TEXT/ISO string)
+### Database Entities
 
-### `events` Table
-- `id` - Primary key (INTEGER)
-- `name` - Event name/title (TEXT)
-- `date` - Event date (TEXT/ISO string)
-- `created` - Creation timestamp (TEXT/ISO string)
-- `updated` - Last update timestamp (TEXT/ISO string)
+#### `attendees` Entity
+- `name` - First name (string)
+- `first_lastname` - First last name (string)
+- `second_lastname` - Second last name (string)
+- `piime_id` - External ID reference (string, optional)
+- `active` - Active status (boolean)
+- `created` - Creation timestamp (date)
+- `updated` - Last update timestamp (date)
 
-### `attendances` Table
-- `id` - Primary key (INTEGER)
-- `event` - Foreign key to events.id (INTEGER)
-- `attendee` - Foreign key to attendees.id (INTEGER)
-- `created` - Creation timestamp (TEXT/ISO string)
-- `updated` - Last update timestamp (TEXT/ISO string)
+#### `events` Entity
+- `name` - Event name/title (string)
+- `date` - Event date (date)
+- `active` - Active status (boolean)
+- `created` - Creation timestamp (date)
+- `updated` - Last update timestamp (date)
+
+#### `attendance` Entity
+- `created` - Creation timestamp (date)
+- `updated` - Last update timestamp (date)
+
+### Entity Relationships
+
+The schema defines relationships using Instant DB's link system:
+
+- **attendanceEvent**: Links attendance records to events (one-to-many)
+- **attendanceAttendee**: Links attendance records to attendees (one-to-many)
+
+### Built-in Entities
+
+- `$files` - File storage with path and URL
+- `$users` - User authentication with email
 
 ### State Management
 
-- **Zustand**: Used for state management with persistence
-- Store structure mirrors the SQLite schema for easy migration
-- Current implementation uses local storage, ready for SQLite integration
+- **Instant DB**: Provides real-time state synchronization
+- **Offline-First**: Automatic caching with AsyncStorage
+- **Real-time**: Changes sync instantly across devices when online
+- **Type-Safe**: Full TypeScript support with schema validation
 
-### Future SQLite Integration
+### Permissions
 
-When implementing expo-sqlite:
-1. Install `expo-sqlite` package
-2. Create database initialization scripts
-3. Replace Zustand persistence with SQLite operations
-4. Implement proper foreign key relationships
-5. Add data migration utilities
+Permission rules are configured in `instant.perms.ts` for controlling access to data based on authentication and ownership.
 
 ## Code Quality Tools
 

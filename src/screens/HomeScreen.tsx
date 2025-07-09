@@ -1,96 +1,82 @@
+import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Alert, FlatList } from 'react-native';
-import { Button, Input, Separator, Text, YStack } from 'tamagui';
-import {
-  useAttendanceStore,
-  type EventWithStats,
-} from '../../store/attendanceStore';
+import { useCallback, useRef, useState } from 'react';
+import { FlatList, StyleSheet } from 'react-native';
+import { Separator, YStack } from 'tamagui';
 import { EventCard, HomeHeader } from '../components';
-import { BottomSheet } from '../components/ui/BottomSheet';
-import { formatDate } from '../utils';
+import { CreateEventBottomSheet } from '../components/CreateEventBottomSheet';
+import { attendeesService, eventsService } from '../services';
 
 export function HomeScreen() {
   const router = useRouter();
-  const { addEvent, getEventsWithStats } = useAttendanceStore();
-  const events = getEventsWithStats();
+  const { data: eventsData, isLoading } = eventsService.getWithAttendances();
+  const { data: attendeesData } = attendeesService.getAll();
+  const events = eventsData?.events || [];
+  const attendees = attendeesData?.attendees || [];
 
-  const handleCreateNewSunday = () => {
-    const today = new Date();
-    const dateString = today.toISOString().split('T')[0];
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
-    addEvent('Servicio Dominical', dateString);
-    Alert.alert('Nueva Lista', 'Lista de domingo creada exitosamente');
+  // callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
+
+  const handleCreateNewEvent = () => {
+    setIsCreateEventOpen(true);
   };
 
-  const handleEventPress = (event: EventWithStats) => {
-    router.push(`/attendance/${event.id}`);
+  const handleEventCreated = () => {
+    // Recargar datos después de crear evento
+    // Los datos se actualizarán automáticamente por Instant DB
   };
 
-  const renderEventItem = ({ item }: { item: EventWithStats }) => (
+  const handleEventPress = (eventId: string) => {
+    router.push(`/attendance/${eventId}`);
+  };
+
+  const renderEventItem = ({ item }: { item: any }) => (
     <EventCard
       event={item}
-      onPress={() => handleEventPress(item)}
-      formatDate={formatDate}
+      totalAttendees={attendees.length || 0}
+      onPress={() => handleEventPress(item.id)}
     />
   );
-
-  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
-  const [field1, setField1] = useState<string>('');
-  const [field2, setField2] = useState<string>('');
-
-  const handleSubmit = () => {
-    Alert.alert('Formulario enviado', `Campo 1: ${field1}\nCampo 2: ${field2}`);
-    setField1('');
-    setField2('');
-    setIsSheetOpen(false);
-  };
 
   return (
     <>
       <YStack flex={1} p="$4">
-        <HomeHeader onCreateNew={handleCreateNewSunday} />
+        <HomeHeader onCreateNew={handleCreateNewEvent} />
 
         <Separator mb="$4" />
 
         <FlatList
           data={events}
           renderItem={renderEventItem}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
         />
-        <Button onPress={() => setIsSheetOpen(true)}>
-          <Text>Open Sheet</Text>
-        </Button>
       </YStack>
-      <BottomSheet
-        isSheetOpen={isSheetOpen}
-        setIsSheetOpen={setIsSheetOpen}
-        snapPoints={[80]}
-        defaultPosition={0}
-      >
-        <YStack space="$4">
-          <Text fontSize="$6" fontWeight="bold">
-            Formulario
-          </Text>
-          <Input
-            placeholder="Campo 1"
-            value={field1}
-            onChangeText={setField1}
-            background="$white"
-          />
-          <Input
-            placeholder="Campo 2"
-            value={field2}
-            onChangeText={setField2}
-            background="$white"
-          />
-          <Button onPress={handleSubmit} background="$blue10">
-            <Text color="$white1">Enviar</Text>
-          </Button>
-        </YStack>
-      </BottomSheet>
+
+      <CreateEventBottomSheet
+        isOpen={isCreateEventOpen}
+        onClose={() => setIsCreateEventOpen(false)}
+        onEventCreated={handleEventCreated}
+      />
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'grey',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: 'center',
+  },
+});
