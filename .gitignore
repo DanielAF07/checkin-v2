@@ -39,3 +39,5 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+ios/checkinv2.xcodeproj/project.pbxproj
+ios/Podfile.lock
