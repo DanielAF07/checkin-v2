@@ -1,9 +1,33 @@
 import { eventsService } from '@/src/services';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
+import DatePicker from 'react-native-date-picker';
 import { Button, H4, Label, Text, XStack, YStack } from 'tamagui';
 import { BottomSheet } from './ui/BottomSheet';
 import { BottomSheetInput } from './ui/BottomSheetInput';
+
+// Función para obtener el próximo domingo a las 11am
+const getNextSunday11AM = (): Date => {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  let nextSunday: Date;
+  
+  if (dayOfWeek === 0) {
+    // Si es domingo, usar el día de hoy
+    nextSunday = new Date(today);
+  } else {
+    // Calcular días hasta el próximo domingo
+    const daysUntilSunday = 7 - dayOfWeek;
+    nextSunday = new Date(today);
+    nextSunday.setDate(today.getDate() + daysUntilSunday);
+  }
+  
+  // Establecer la hora a las 11:00 AM
+  nextSunday.setHours(11, 0, 0, 0);
+  
+  return nextSunday;
+};
 
 interface CreateEventBottomSheetProps {
   isOpen: boolean;
@@ -17,15 +41,17 @@ export function CreateEventBottomSheet({
   onEventCreated,
 }: CreateEventBottomSheetProps) {
   const [name, setName] = useState('');
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(getNextSunday11AM());
   const [isLoading, setIsLoading] = useState(false);
+  const [showDateTimePicker, setShowDateTimePicker] = useState(false);
 
   // Limpiar formulario cuando se cierra el BottomSheet
   useEffect(() => {
     if (!isOpen) {
       setName('');
-      setDate(new Date());
+      setDate(getNextSunday11AM());
       setIsLoading(false);
+      setShowDateTimePicker(false);
     }
   }, [isOpen]);
 
@@ -51,13 +77,12 @@ export function CreateEventBottomSheet({
       setIsLoading(false);
     }
   };
-
   return (
     <>
       <BottomSheet
         open={isOpen}
         onClose={() => onClose()}
-        snapPoints={['40%']}
+        snapPoints={['45%']}
         enablePanDownToClose
         dismissKeyboardOnTap
         resetOnKeyboardHide
@@ -75,24 +100,35 @@ export function CreateEventBottomSheet({
               maxLength={100}
               size="$4"
               returnKeyType="done"
-              onSubmitEditing={handleCreateEvent}
             />
           </YStack>
 
           <YStack gap="$2">
             <Label>Fecha y hora</Label>
-            <Text color="$color10" fontSize="$3">
-              {date
-                .toLocaleDateString('es-ES', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-                .replace(',', '')}
-            </Text>
+
+            <XStack gap="$2" items="center">
+              <Button
+                variant="outlined"
+                onPress={() => setShowDateTimePicker(true)}
+                flex={1}
+                disabled={isLoading}
+              >
+                <Text fontSize="$3">
+                  {date.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                  })}
+                </Text>
+                <Text fontSize="$3">
+                  {date.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </Text>
+              </Button>
+            </XStack>
           </YStack>
 
           <XStack gap="$3" justify="flex-end" mt="$4">
@@ -104,12 +140,31 @@ export function CreateEventBottomSheet({
             >
               Cancelar
             </Button>
-            <Button flex={1} onPress={handleCreateEvent} disabled={isLoading}>
+            <Button
+              bg="$blue8"
+              flex={1}
+              onPress={handleCreateEvent}
+              disabled={isLoading}
+            >
               {isLoading ? 'Creando...' : 'Crear Evento'}
             </Button>
           </XStack>
         </YStack>
       </BottomSheet>
+
+      <DatePicker
+        modal
+        minuteInterval={30}
+        open={showDateTimePicker}
+        date={date}
+        onConfirm={date => {
+          setShowDateTimePicker(false);
+          setDate(date);
+        }}
+        onCancel={() => {
+          setShowDateTimePicker(false);
+        }}
+      />
     </>
   );
 }
