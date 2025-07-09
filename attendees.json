@@ -1,0 +1,41 @@
+[
+  {
+    "create": {
+      "attendees": {
+        "name": "AARON",
+        "first_lastname": "VARGAS",
+        "second_lastname": "HERNANDEZ",
+        "piime_id": "0",
+        "active": true,
+        "created": "2025-07-07T08:17:39.060964",
+        "updated": "2025-07-07T08:17:39.061843"
+      }
+    }
+  },
+  {
+    "create": {
+      "attendees": {
+        "name": "ALFONSO",
+        "first_lastname": "GARCÍA",
+        "second_lastname": "GARCÍA",
+        "piime_id": "0",
+        "active": true,
+        "created": "2025-07-07T08:17:39.060964",
+        "updated": "2025-07-07T08:17:39.061843"
+      }
+    }
+  },
+  {
+    "create": {
+      "attendees": {
+        "name": "JOSÉ",
+        "first_lastname": "MARTÍNEZ",
+        "second_lastname": "HERNÁNDEZ",
+        "piime_id": "0",
+        "active": true,
+        "created": "2025-07-07T08:17:39.060964",
+        "updated": "2025-07-07T08:17:39.061843"
+      }
+    }
+  }
+]
