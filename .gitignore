@@ -41,3 +41,4 @@ yarn-error.*
 app-example
 ios/checkinv2.xcodeproj/project.pbxproj
 ios/Podfile.lock
+attendees.json.local
