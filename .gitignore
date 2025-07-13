@@ -42,3 +42,6 @@ app-example
 ios/checkinv2.xcodeproj/project.pbxproj
 ios/Podfile.lock
 attendees.json.local
+
+# Attendance lists
+scripts/attendance_lists/

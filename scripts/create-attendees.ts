@@ -1,7 +1,11 @@
 import { id, init } from '@instantdb/admin';
+import { config } from 'dotenv';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import schema from '../instant.schema';
+
+config();
+
 const APP_ID = process.env.EXPO_PUBLIC_INSTANT_APP_ID || '';
 const ADMIN_TOKEN = process.env.INSTANT_ADMIN_TOKEN || '';
 
