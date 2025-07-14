@@ -37,7 +37,7 @@ export const BottomSheet = ({
   }, [open]);
 
   useEffect(() => {
-    if (!resetOnKeyboardHide) return;
+    if (!resetOnKeyboardHide || !open) return;
 
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
@@ -61,10 +61,6 @@ export const BottomSheet = ({
   const openSheet = () => {
     bottomSheetRef.current?.expand();
   };
-
-  // const handleSheetChanges = useCallback((index: number) => {
-  //   console.log('handleSheetChanges', index);
-  // }, []);
 
   return (
     <BottomSheetGorhom
