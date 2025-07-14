@@ -41,6 +41,7 @@ export function SearchBar({
         onChangeText={onChangeText}
         autoCapitalize="words"
         autoCorrect={false}
+        returnKeyType="done"
       />
 
       {value.length > 0 && (
