@@ -1,10 +1,9 @@
-import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
 import { Separator, YStack } from 'tamagui';
-import { EventCard, EventsFilter, HomeHeader } from '../components';
 import type { EventFilterType } from '../components';
+import { EventCard, EventsFilter, HomeHeader } from '../components';
 import { CreateEventBottomSheet } from '../components/CreateEventBottomSheet';
 import { attendeesService, eventsService } from '../services';
 
@@ -15,15 +14,9 @@ export function HomeScreen() {
   const events = eventsData?.events || [];
   const attendees = attendeesData?.attendees || [];
 
-  const bottomSheetRef = useRef<BottomSheet>(null);
-
-  // callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
-
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<EventFilterType>('upcoming');
+  const [selectedFilter, setSelectedFilter] =
+    useState<EventFilterType>('upcoming');
 
   const handleCreateNewEvent = () => {
     setIsCreateEventOpen(true);
@@ -37,8 +30,12 @@ export function HomeScreen() {
   // Filtrar y ordenar eventos
   const filteredAndSortedEvents = useMemo(() => {
     const today = new Date();
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    
+    const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+
     // Primero ordenar por fecha (más reciente primero)
     const sortedEvents = [...events].sort((a, b) => {
       const dateA = new Date(a.date);
@@ -51,14 +48,22 @@ export function HomeScreen() {
       // Incluir eventos de hoy y futuros (sin importar la hora del día)
       return sortedEvents.filter(event => {
         const eventDate = new Date(event.date);
-        const eventDateStart = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+        const eventDateStart = new Date(
+          eventDate.getFullYear(),
+          eventDate.getMonth(),
+          eventDate.getDate()
+        );
         return eventDateStart >= todayStart;
       });
     } else {
       // Solo eventos de días anteriores
       return sortedEvents.filter(event => {
         const eventDate = new Date(event.date);
-        const eventDateStart = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+        const eventDateStart = new Date(
+          eventDate.getFullYear(),
+          eventDate.getMonth(),
+          eventDate.getDate()
+        );
         return eventDateStart < todayStart;
       });
     }
@@ -67,20 +72,32 @@ export function HomeScreen() {
   // Contadores para los filtros
   const eventCounts = useMemo(() => {
     const today = new Date();
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    
+    const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+
     const upcomingCount = events.filter(event => {
       const eventDate = new Date(event.date);
-      const eventDateStart = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+      const eventDateStart = new Date(
+        eventDate.getFullYear(),
+        eventDate.getMonth(),
+        eventDate.getDate()
+      );
       return eventDateStart >= todayStart; // Incluye eventos de hoy
     }).length;
-    
+
     const pastCount = events.filter(event => {
       const eventDate = new Date(event.date);
-      const eventDateStart = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+      const eventDateStart = new Date(
+        eventDate.getFullYear(),
+        eventDate.getMonth(),
+        eventDate.getDate()
+      );
       return eventDateStart < todayStart; // Solo eventos de días anteriores
     }).length;
-    
+
     return {
       total: events.length,
       upcoming: upcomingCount,
@@ -131,4 +148,3 @@ export function HomeScreen() {
     </>
   );
 }
-

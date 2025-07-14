@@ -17,11 +17,13 @@ interface AttendeeWithPresence {
 interface AttendeeCardProps {
   attendee: AttendeeWithPresence;
   onToggle: () => void;
+  isProcessing?: boolean;
 }
 
 export const AttendeeCard = memo(function AttendeeCard({
   attendee,
   onToggle,
+  isProcessing = false,
 }: AttendeeCardProps) {
   return (
     <Card
@@ -32,7 +34,8 @@ export const AttendeeCard = memo(function AttendeeCard({
       backgroundColor={attendee.isPresent ? '$green2' : '$background'}
       borderColor={attendee.isPresent ? '$green8' : '$borderColor'}
       pressStyle={{ scale: 0.98 }}
-      onPress={onToggle}
+      onPress={isProcessing ? undefined : onToggle}
+      opacity={isProcessing ? 0.6 : 1}
     >
       <Card.Header>
         <View

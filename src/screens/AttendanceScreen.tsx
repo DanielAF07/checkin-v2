@@ -37,6 +37,7 @@ export function AttendanceScreen() {
   const [searchText, setSearchText] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
+  const [processingAttendees, setProcessingAttendees] = useState<Set<string>>(new Set());
   const sectionListRef = useRef<SectionList>(null);
 
   const eventId = id as string;
@@ -130,7 +131,15 @@ export function AttendanceScreen() {
   ).length;
 
   const handleToggleAttendance = async (attendee: any) => {
+    // Prevent double tap - if already processing this attendee, return early
+    if (processingAttendees.has(attendee.id)) {
+      return;
+    }
+
     try {
+      // Add attendee to processing set
+      setProcessingAttendees(prev => new Set(prev).add(attendee.id));
+
       if (attendee.isPresent && attendee.attendanceId) {
         // Mark as absent
         await attendanceService.markAbsent(attendee.attendanceId);
@@ -140,6 +149,13 @@ export function AttendanceScreen() {
       }
     } catch (error) {
       console.error('Error toggling attendance:', error);
+    } finally {
+      // Remove attendee from processing set
+      setProcessingAttendees(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(attendee.id);
+        return newSet;
+      });
     }
   };
 
@@ -191,6 +207,7 @@ export function AttendanceScreen() {
     <AttendeeCard
       attendee={item}
       onToggle={() => handleToggleAttendance(item)}
+      isProcessing={processingAttendees.has(item.id)}
     />
   );
 
