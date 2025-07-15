@@ -45,3 +45,6 @@ attendees.json.local
 
 # Attendance lists
 scripts/attendance_lists/
+
+# Excel files
+scripts/insert_attendees_xlsx/grid.xlsx
